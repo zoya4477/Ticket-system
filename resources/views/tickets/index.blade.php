@@ -126,14 +126,14 @@
                                     <a href="{{ route('tickets.show', $ticket->id) }}" 
                                        class="btn btn-sm btn-outline-info rounded-3 px-3 transition-hover"
                                        data-bs-toggle="tooltip" title="View Details">
-                                        <i class="fas fa-eye"></i> <span class="d-none d-lg-inline">View</span>
+                                        <i class="fas fa-eye"></i> View
                                     </a>
 
                                     <!-- Edit Button -->
                                     <a href="{{ route('tickets.edit', $ticket->id) }}" 
                                        class="btn btn-sm btn-outline-warning rounded-3 px-3 transition-hover"
                                        data-bs-toggle="tooltip" title="Edit Ticket">
-                                        <i class="fas fa-edit"></i> <span class="d-none d-lg-inline">Edit</span>
+                                        <i class="fas fa-edit"></i> Edit
                                     </a>
 
                                     <!-- Delete Button -->
@@ -144,7 +144,7 @@
                                         <button class="btn btn-sm btn-outline-danger rounded-3 px-3 transition-hover" 
                                                 onclick="return confirm('Are you sure you want to delete this ticket? This action cannot be undone.')"
                                                 data-bs-toggle="tooltip" title="Delete Ticket">
-                                            <i class="fas fa-trash-alt"></i> <span class="d-none d-lg-inline">Delete</span>
+                                            <i class="fas fa-trash-alt"></i> Delete
                                         </button>
                                     </form>
                                 </div>
@@ -276,17 +276,6 @@
 
 @push('scripts')
 <script>
-    // Optional: Auto-submit filter on change (if desired)
-    // Uncomment the following to enable auto-filter when select changes
-    /*
-    document.getElementById('category_id').addEventListener('change', function() {
-        document.getElementById('filterForm').submit();
-    });
-    document.getElementById('priority').addEventListener('change', function() {
-        document.getElementById('filterForm').submit();
-    });
-    */
-    
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
