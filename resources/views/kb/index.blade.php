@@ -95,8 +95,9 @@ body::before {
 }
 
 /* ── Search ── */
+.search-form { max-width: 640px; margin: 0 auto; }
+
 .search-pill {
-    max-width: 640px; margin: 0 auto;
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: 18px;
@@ -137,6 +138,29 @@ body::before {
 
 .btn-search:hover { opacity: 0.88; transform: translateY(-1px); }
 
+/* ── Search result banner ── */
+.search-result-bar {
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap;
+    gap: 10px;
+    background: rgba(59,111,240,0.06);
+    border: 1px solid rgba(59,111,240,0.15);
+    border-radius: 12px;
+    padding: 11px 18px;
+    margin-bottom: 24px;
+    font-size: 0.85rem; color: var(--text);
+}
+
+.search-result-bar strong { color: var(--accent); }
+
+.search-clear {
+    font-size: 0.78rem; color: var(--muted);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 5px;
+    transition: color 0.2s;
+}
+.search-clear:hover { color: var(--accent); }
+
 /* ── Main layout ── */
 .kb-body {
     position: relative; z-index: 1;
@@ -162,6 +186,14 @@ body::before {
 .section-title {
     font-family: 'Syne', sans-serif;
     font-size: 1.15rem; font-weight: 800; color: var(--text);
+}
+
+.result-count {
+    font-size: 0.8rem; color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
 }
 
 .btn-create {
@@ -225,6 +257,14 @@ body::before {
     font-size: 1rem; flex-shrink: 0;
 }
 
+/* highlight matched text */
+.art-title mark, .art-excerpt mark {
+    background: rgba(59,111,240,0.12);
+    color: var(--accent);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
 .art-title {
     font-family: 'Syne', sans-serif;
     font-size: 0.97rem; font-weight: 700;
@@ -266,7 +306,20 @@ body::before {
     color: var(--muted);
 }
 
-.empty-kb i { font-size: 2.5rem; opacity: 0.35; margin-bottom: 14px; }
+.empty-kb i { font-size: 2.5rem; opacity: 0.35; margin-bottom: 14px; display: block; }
+.empty-kb p { margin-bottom: 14px; }
+
+.btn-clear {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface);
+    border: 1px solid rgba(59,111,240,0.25);
+    border-radius: 10px;
+    color: var(--accent); font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 9px 18px; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-clear:hover { background: rgba(59,111,240,0.05); transform: translateY(-1px); color: var(--accent); }
 
 /* ── Pagination ── */
 .pagination-wrap { margin-top: 32px; }
@@ -387,14 +440,37 @@ body::before {
 {{-- Hero --}}
 <div class="kb-hero">
     <div class="hero-badge"><span></span> Support Center</div>
-    <h1 class="hero-title">How can we <span class="highlight">help you</span> today?</h1>
-    <p class="hero-sub">Search our knowledge base or browse help topics below</p>
 
-    <div class="search-pill">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="Describe your issue or ask a question...">
-        <button class="btn-search">Search</button>
-    </div>
+    @if($searchTerm)
+        <h1 class="hero-title">Results for <span class="highlight">"{{ $searchTerm }}"</span></h1>
+        <p class="hero-sub">{{ $articles->total() }} article{{ $articles->total() !== 1 ? 's' : '' }} found</p>
+    @else
+        <h1 class="hero-title">How can we <span class="highlight">help you</span> today?</h1>
+        <p class="hero-sub">Search our knowledge base or browse help topics below</p>
+    @endif
+
+    {{-- Search Form --}}
+    <form action="{{ route('kb.index') }}" method="GET" class="search-form">
+        <div class="search-pill">
+            <i class="fas fa-search"></i>
+            <input
+                type="text"
+                name="search"
+                value="{{ $searchTerm ?? '' }}"
+                placeholder="Describe your issue or ask a question..."
+                autocomplete="off"
+            >
+            @if($searchTerm)
+                {{-- X button to clear --}}
+                <a href="{{ route('kb.index') }}" style="color:var(--muted);font-size:0.85rem;text-decoration:none;padding:4px 6px;flex-shrink:0;" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </a>
+            @endif
+            <button type="submit" class="btn-search">
+                <i class="fas fa-search" style="margin-right:5px;"></i> Search
+            </button>
+        </div>
+    </form>
 </div>
 
 {{-- Body --}}
@@ -403,28 +479,91 @@ body::before {
     {{-- Articles --}}
     <div>
         <div class="section-bar">
-            <div class="section-title">Popular Articles</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="section-title">
+                    @if($searchTerm)
+                        Search Results
+                    @else
+                        Popular Articles
+                    @endif
+                </div>
+                @if($searchTerm)
+                    <span class="result-count">{{ $articles->total() }} found</span>
+                @endif
+            </div>
             <a href="{{ route('kb.create') }}" class="btn-create">
                 <i class="fas fa-plus"></i> Create Article
             </a>
         </div>
 
+        {{-- Search result info bar --}}
+        @if($searchTerm)
+        <div class="search-result-bar">
+            <span>Showing results for <strong>"{{ $searchTerm }}"</strong></span>
+            <a href="{{ route('kb.index') }}" class="search-clear">
+                <i class="fas fa-times-circle"></i> Clear search
+            </a>
+        </div>
+        @endif
+
         <div class="articles-grid">
             @forelse($articles as $article)
             <div class="art-card">
                 <div class="art-icon"><i class="fas fa-file-lines"></i></div>
+
                 <a href="{{ route('kb.article', $article->id) }}" class="art-title">
-                    {{ $article->title }}
+                    @if($searchTerm)
+                        {!! str_ireplace(
+                            e($searchTerm),
+                            '<mark>' . e($searchTerm) . '</mark>',
+                            e($article->title)
+                        ) !!}
+                    @else
+                        {{ $article->title }}
+                    @endif
                 </a>
-                <p class="art-excerpt">{{ Str::limit(strip_tags($article->content), 100) }}</p>
+
+                <p class="art-excerpt">
+                    @if($searchTerm)
+                        @php
+                            $plain   = strip_tags($article->content);
+                            $pos     = stripos($plain, $searchTerm);
+                            $excerpt = $pos !== false
+                                ? '...' . substr($plain, max(0, $pos - 40), 120) . '...'
+                                : Str::limit($plain, 100);
+                        @endphp
+                        {!! str_ireplace(
+                            e($searchTerm),
+                            '<mark>' . e($searchTerm) . '</mark>',
+                            e($excerpt)
+                        ) !!}
+                    @else
+                        {{ Str::limit(strip_tags($article->content), 100) }}
+                    @endif
+                </p>
+
                 <div class="art-footer">
-                    <span class="read-more">Read More <i class="fas fa-arrow-right fa-xs"></i></span>
+                    <a href="{{ route('kb.article', $article->id) }}" class="read-more">
+                        Read More <i class="fas fa-arrow-right fa-xs"></i>
+                    </a>
                 </div>
             </div>
+
             @empty
             <div class="empty-kb">
-                <div><i class="fas fa-book-open"></i></div>
-                <p>No articles yet. Be the first to create one!</p>
+                @if($searchTerm)
+                    <i class="fas fa-magnifying-glass"></i>
+                    <p>No articles found for <strong>"{{ $searchTerm }}"</strong></p>
+                    <a href="{{ route('kb.index') }}" class="btn-clear">
+                        <i class="fas fa-arrow-left"></i> Back to all articles
+                    </a>
+                @else
+                    <i class="fas fa-book-open"></i>
+                    <p>No articles yet. Be the first to create one!</p>
+                    <a href="{{ route('kb.create') }}" class="btn-clear">
+                        <i class="fas fa-plus"></i> Create Article
+                    </a>
+                @endif
             </div>
             @endforelse
         </div>

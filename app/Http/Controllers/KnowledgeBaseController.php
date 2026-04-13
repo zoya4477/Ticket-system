@@ -23,7 +23,8 @@ class KnowledgeBaseController extends Controller
                 });
             })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString(); // ← search term pagination ke saath bana rahe
 
         return view('kb.index', compact('articles', 'searchTerm'));
     }
@@ -58,9 +59,8 @@ class KnowledgeBaseController extends Controller
      * Global Search for both Articles and FAQs
      */
     public function search(Request $request) {
-        // Renamed 'query' to 'search' to match the input name for consistency
-        $query = $request->input('search'); 
-        
+        $query = $request->input('search');
+
         if (!$query) {
             return redirect()->route('kb.index');
         }
