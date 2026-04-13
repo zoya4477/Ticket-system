@@ -102,14 +102,14 @@
                     </div>
                 </div>
             </div>
-
-            <!-- SEARCH -->
+            
+            <!-- SEARCH --
             <div class="relative hidden lg:block">
                 <i class="fas fa-search absolute left-3 top-2 text-gray-500 text-xs"></i>
                 <input type="text"
                        class="bg-gray-800 text-sm border border-gray-600 rounded-full py-1.5 pl-8 pr-4 focus:outline-none focus:border-blue-500 w-64 text-gray-200"
                        placeholder="Search tickets...">
-            </div>
+            </div> -->
 
             <!-- USER DROPDOWN -->
             <div class="relative">
